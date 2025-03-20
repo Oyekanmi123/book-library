@@ -1,36 +1,48 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// import './App.css'
+import { useState } from "react"
+import axios from "axios"
+import SearchBar from "./components/SearchBar"
+import BookCard from "./components/BookCard";
+
 
 function App() {
-  const [count, setCount] = useState(0)
+    const [books, setBooks] = useState([]);
+    const [loading, setLoading] = useState("false");
+    const [error, setError] = useState("");
 
-  return (
+      const fetchBooks = async(query) =>{
+        setLoading(true);
+        setError("");
+
+        try{
+          const response = await axios.get(
+            `https://openlibrary.org/search.json?q=${query}`
+          );
+          setBooks(response.data.docs.slice(0, 10));  // Show only first 10 results
+        }catch{
+          setError("Failed to fetch books. please try again");
+        }finally{
+          setLoading(false)
+        }
+      }
+    
+    return (
     <>
-      <div>
-          <div className="text-center text-3xl font-bold text-blue-600">
-            Tailwind is working! 🚀
-          </div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <div  className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold text-center mb-4">Book Library</h1>
+        <SearchBar onSearch={fetchBooks} />
+
+        {loading && <p className="text-center">Loading...</p>}
+        {error && <p className="text-center text-red-500">{error}</p>}
+      
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {books.map((book) => (
+          <BookCard key={book.key} book={book} />
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      
     </>
   )
 }
