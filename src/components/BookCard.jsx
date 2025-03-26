@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 const BookCard = ({ book }) => {
+  if (!book || !book.key) return null;
   
   const bookId = book.key.replace("/works/", "");
 

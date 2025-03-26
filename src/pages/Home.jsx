@@ -1,11 +1,12 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import axios from "axios"
 import SearchBar from "../components/SearchBar"
 import BookCard from "../components/BookCard";
+import { SearchContext } from "../context/SearchContext";
 
 
 const Home = () => {
-    const [books, setBooks] = useState([]);
+    const {books, setBooks} = useContext(SearchContext);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -17,6 +18,13 @@ const Home = () => {
           const response = await axios.get(
             `https://openlibrary.org/search.json?q=${query}`
           );
+          console.log("API Response:", response.data);
+          console.log("Books Array:", response.data.docs); 
+
+          if (!response.data.docs || response.data.docs.length === 0) {
+            setError("No books found.");
+          }
+
           setBooks(response.data.docs.slice(0, 10));  // Show only first 10 results
         }catch{
           setError("Failed to fetch books. please try again");

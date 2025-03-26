@@ -1,5 +1,6 @@
-import { useParams } from "react-router-dom";
+import { useParams} from "react-router-dom";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const BookDetails = () => {
   const { id } = useParams();
@@ -68,7 +69,7 @@ const BookDetails = () => {
         📚 Subjects: {book?.subjects?.join(", ") || "No subjects listed"}
       </p>
       <p className="mt-4">{book?.description?.value || "No description available"}</p>
-      <a href="/" className="text-blue-500 hover:underline mt-4 block">Back to Books</a>
+      <Link to="/" className="text-blue-500 hover:underline mt-4 block">Back to Books</Link>
     </div>
   );
 };
