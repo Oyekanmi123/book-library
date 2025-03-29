@@ -15,11 +15,16 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedBooks = JSON.parse(localStorage.getItem("searchedBooks"));
-    if (storedBooks && storedBooks.length > 0) {
-      setBooks(storedBooks);
+    const storedCategory = localStorage.getItem("selectedCategory"); // Retrieve stored category
+    const storedBooks = JSON.parse(localStorage.getItem("searchedBooks")); // Retrieve stored books
+  
+    if (storedCategory) {
+      setSelectedCategory(storedCategory); // Restore category selection
+      fetchBooks(storedCategory); // Fetch books based on stored category
+    } else if (storedBooks && storedBooks.length > 0) {
+      setBooks(storedBooks); // Restore previous search results
     } else {
-      fetchDefaultBooks();
+      fetchDefaultBooks(); // Load default bestsellers if nothing is stored
     }
   }, [setBooks]);
 
@@ -37,16 +42,20 @@ const Home = () => {
     }
   };
 
-  const fetchBooks = async (query) => {
+  const fetchBooks = async (query = "bestseller", category = "All") => {
     setLoading(true);
     setError("");
-
+  
+    let url = `https://openlibrary.org/search.json?q=${query}`;
+    
+    if (category !== "All") {
+      url += `+subject:${category.toLowerCase()}`; // Fetch books by selected category
+    }
+  
     try {
-      const response = await axios.get(
-        `https://openlibrary.org/search.json?q=${query}`
-      );
+      const response = await axios.get(url);
       if (!response.data.docs || response.data.docs.length === 0) {
-        setError("No books found.");
+        setError(`No books found for category: ${category}`);
       } else {
         const searchedBooks = response.data.docs.slice(0, 10);
         setBooks(searchedBooks);
@@ -60,6 +69,7 @@ const Home = () => {
   };
 
   const goHome = () => {
+    setSelectedCategory("All"); // Reset category selection
     localStorage.removeItem("searchedBooks"); // Clear search results from local storage
     setBooks([]); // Reset books state
     fetchDefaultBooks(); // Load bestsellers
@@ -88,10 +98,14 @@ const Home = () => {
         {categories.map((category) => (
           <button
             key={category}
-            className={`px-4 py-2 rounded-full text-gray-700 shadow-md transition ${
+            className={`px-4 py-2 rounded-full text-gray-700 shadow-md transition focus:outline-none ${
               selectedCategory === category ? "bg-blue-500 text-white" : "bg-white"
             }`}
-            onClick={() => setSelectedCategory(category)}
+            onClick={() => {
+              setSelectedCategory(category);
+              localStorage.setItem("selectedCategory", category); // Store category in localStorage
+              fetchBooks("bestseller", category); // Fetch books for selected category
+            }}
           >
             {category}
           </button>
