@@ -33,7 +33,6 @@ body {
   font-family: 'Poppins', sans-serif;
   min-width: 320px;
   height: 100vh; 
-  @apply bg-[#FCE7F3];
 }
 
 h1 {
