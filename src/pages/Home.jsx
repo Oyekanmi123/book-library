@@ -71,6 +71,7 @@ const Home = () => {
 
   const goHome = () => {
     setSelectedCategory("All"); // Reset category selection
+    localStorage.removeItem("selectedCategory"); // Clear stored category
     localStorage.removeItem("searchedBooks"); // Clear search results from local storage
     setBooks([]); // Reset books state
     fetchDefaultBooks(); // Load bestsellers
