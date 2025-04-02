@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import SkeletonBookDetail from "./SkeletonBookDetail";
 
 const BookDetails = () => {
   const { id } = useParams();
@@ -16,7 +17,8 @@ const BookDetails = () => {
         const res = await fetch(`https://openlibrary.org/works/${id}.json`);
         const data = await res.json();
         setBook(data);
-
+  
+        // Fetch author details
         if (data.authors?.length > 0) {
           const authorKeys = data.authors.map(authorObj => authorObj.author.key.replace("/authors/", ""));
           const authorDetails = await Promise.all(
@@ -28,24 +30,31 @@ const BookDetails = () => {
           const authorNames = authorDetails.map(author => author.name || "Unknown Author");
           setAuthor(authorNames.join(", "));
         }
-
-        if (data.edition_key?.length > 0) {
-          const editionRes = await fetch(`https://openlibrary.org/books/${data.edition_key[0]}.json`);
-          const editionData = await editionRes.json();
-          setEdition(editionData);
+  
+        // Fetch editions (work editions API instead of edition_key)
+        const editionsRes = await fetch(`https://openlibrary.org/works/${id}/editions.json`);
+        const editionsData = await editionsRes.json();
+  
+        if (editionsData.entries.length > 0) {
+          setEdition(editionsData.entries[0]); // Take first available edition
+        } else {
+          setEdition(null);
         }
-
+  
         setLoading(false);
       } catch (error) {
         console.error("Error fetching book details:", error);
         setLoading(false);
       }
     };
-
+  
     fetchBookDetails();
   }, [id]);
 
-  if (loading) return <p className="text-center text-gray-600">Loading book details...</p>;
+  // if (loading) return <p className="text-center text-gray-600">Loading book details...</p>;
+
+  if (loading) return <SkeletonBookDetail />; // Show skeleton while loading
+  // if (error) return <p className="text-red-500 text-center">{error}</p>;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-100 to-indigo-300 flex items-center justify-center py-12 px-6">
@@ -58,7 +67,9 @@ const BookDetails = () => {
         {/* Book Cover */}
         <div className="w-full md:w-1/3 flex justify-center">
           <img 
-            src={`https://covers.openlibrary.org/b/id/${book?.covers?.[0]}-L.jpg`} 
+            src={book?.covers?.[0] 
+              ? `https://covers.openlibrary.org/b/id/${book.covers[0]}-L.jpg` 
+              : "https://via.placeholder.com/150x200?text=No+Cover"} 
             alt={book?.title || "Book Cover"} 
             className="w-48 h-64 object-cover rounded-lg shadow-md"
           />
@@ -74,7 +85,7 @@ const BookDetails = () => {
             📅 <span className="font-semibold">Published:</span> {edition?.publish_date || book?.first_publish_date || "Not Available"}
           </p>
           <p className="text-gray-600">
-            🏢 <span className="font-semibold">Publisher:</span> {edition?.publishers?.[0] || "Not Available"}
+            🏢 <span className="font-semibold">Publisher:</span> {edition?.publishers?.join(", ") || "Not Available"}
           </p>
           <p className="text-gray-600">
             📖 <span className="font-semibold">Pages:</span> {edition?.number_of_pages || "Not Listed"}
@@ -99,7 +110,7 @@ const BookDetails = () => {
         <h3 className="font-semibold text-gray-700">📖 Description:</h3>
         <p className="text-gray-700">
           {showFullDescription
-            ? book?.description?.value || "No description available"
+            ? typeof book?.description === "string" ? book.description : book?.description?.value || "No description available"
             : (book?.description?.value?.slice(0, 200) || "No description available") + "..."}
         </p>
         {book?.description?.value && book.description.value.length > 200 && (
@@ -136,6 +147,8 @@ const BookDetails = () => {
     </div>
   </div>
   );
+
+   
 };
 
 export default BookDetails;
