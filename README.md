@@ -4,7 +4,8 @@ This is a React-based Book Library application that allows users to search for b
 ## Features
 - Search for books by title, author.
 - View book details (cover, title, author, publication date, etc.)
-- Responsive design with Tailwind CSS
+- Responsive layout for mobile and desktop using Tailwind CSS
+- Smooth transitions and a clean UI
 
 ## 🛠 Tech Stack
 - React
@@ -24,5 +25,9 @@ This is a React-based Book Library application that allows users to search for b
 4. Start the app:
     npm run dev
 
-📜 License
+ Deployment
+This app is deployed using Vercel.
+Live link: https://book-library-cns8rwcd0-lydia-oyekanmis-projects.vercel.app
+
+ License
 This project is licensed under the MIT License.
