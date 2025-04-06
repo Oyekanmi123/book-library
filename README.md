@@ -27,7 +27,7 @@ This is a React-based Book Library application that allows users to search for b
 
  Deployment
 This app is deployed using Vercel.
-Live link: https://book-library-cns8rwcd0-lydia-oyekanmis-projects.vercel.app
+Live link: https://book-library-app-red.vercel.app/
 
- License
+License
 This project is licensed under the MIT License.
